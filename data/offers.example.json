@@ -1,0 +1,18 @@
+[
+  {
+    "id":"haendler-filiale-produkt-2026-10-08",
+    "name":"Beispielprodukt",
+    "market":"Beispielmarkt",
+    "city":"Aalen",
+    "branch":"Musterstraße 1",
+    "category":"Molkerei",
+    "quantity":"500 g",
+    "price":1.49,
+    "old_price":1.99,
+    "valid_from":"2026-10-08",
+    "valid_until":"2026-10-10",
+    "source_url":"https://example.com/angebot",
+    "emoji":"🛒",
+    "tint":"#eaf4ea"
+  }
+]
