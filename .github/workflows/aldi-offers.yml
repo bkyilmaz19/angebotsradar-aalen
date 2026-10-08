@@ -1,5 +1,10 @@
 name: ALDI-Angebote aktualisieren (inoffizielle Quelle)
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/aldi-offers.yml'
+      - 'scripts/import_aldi.py'
   schedule:
     - cron: '25 7,18 * * *'
   workflow_dispatch:
