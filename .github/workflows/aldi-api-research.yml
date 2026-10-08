@@ -1,5 +1,7 @@
 name: ALDI Schnittstelle prüfen (nur Forschung)
 on:
+  push:
+    branches: [research/aldi-sued-api-test]
   workflow_dispatch:
 permissions:
   contents: read
