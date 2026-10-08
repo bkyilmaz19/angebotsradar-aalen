@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gemeldete Preise – AngebotsRadar Aalen</title><link rel="stylesheet" href="./styles.css">
+<style>main{max-width:950px;margin:45px auto;padding:20px} .price-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:25px} .price-item{border:1px solid #d8dfd9;border-radius:16px;padding:18px;background:white} .price-item h3{font-size:1.15rem} .price-item small{display:block;margin:8px 0} #price-search{width:100%;max-width:550px;padding:14px;border:1px solid #aab7ac;border-radius:10px} .caution{padding:15px;border:1px solid #dfbe72;border-radius:10px;background:#fff8e8} a{color:#166534}</style>
+</head><body><main>
+<p><a href="./index.html">← Zurück zu AngebotsRadar</a></p>
+<h1>Gemeldete Lebensmittelpreise in Aalen</h1>
+<p class="caution"><strong>Keine verifizierten aktuellen Wochenangebote!</strong> Hier stehen von Nutzern gemeldete Preise der letzten 30 Tage. Ein Preis kann inzwischen geändert sein; auch als „reduziert“ gemeldete Preise gelten nicht automatisch heute.</p>
+<label for="price-search">Produkt suchen</label><p><input id="price-search" type="search" placeholder="z. B. Milch, Butter, Kaffee"></p>
+<p id="status">Preisdaten werden geladen …</p><div class="price-list" id="prices"></div>
+<p>Quelle: <a href="https://prices.openfoodfacts.org/" target="_blank" rel="noopener noreferrer">Open Prices / Open Food Facts</a>.
+Datenlizenz <a href="https://opendatacommons.org/licenses/odbl/1.0/" target="_blank" rel="noopener noreferrer">ODbL 1.0</a>.
+<a href="./data/open-prices.json">Verwendeten Datensatz öffnen</a>.</p>
+</main><script>
+(async()=>{
+const list=document.getElementById('prices'), status=document.getElementById('status'), search=document.getElementById('price-search');
+const el=(tag,text)=>{const e=document.createElement(tag);e.textContent=text;return e};
+try {
+ const res=await fetch('./data/open-prices.json',{cache:'no-store'});if(!res.ok)throw Error('Status '+res.status);
+ const data=await res.json();const rows=Array.isArray(data.items)?data.items:[];
+ function draw(){list.replaceChildren();const q=search.value.trim().toLocaleLowerCase('de');const filtered=rows.filter(r=>r.name.toLocaleLowerCase('de').includes(q)||r.market.toLocaleLowerCase('de').includes(q));
+ status.textContent=filtered.length+' gemeldete Preise gefunden · letzter Datenabruf: '+(data.checked_utc?new Date(data.checked_utc).toLocaleString('de-DE'):'unbekannt');
+ if(!filtered.length)list.append(el('p','Keine passenden aktuellen Preisbeobachtungen in der offenen Datenbank.'));
+ filtered.forEach(r=>{const card=el('article','');card.className='price-item';card.append(el('h3',r.name),el('p',Number(r.price).toLocaleString('de-DE',{style:'currency',currency:'EUR'})),el('small',r.market),el('small','Gemeldet am '+r.date),el('small',r.address||''));if(r.discount_reported)card.append(el('small','Bei Erfassung als reduziert gemeldet – heute nicht bestätigt'));if(/^https:\/\//.test(r.source_url)){const a=el('a','Originalbeleg / Quelle ↗');a.href=r.source_url;a.target='_blank';a.rel='noopener noreferrer';card.append(a)}list.append(card)})}
+ search.addEventListener('input',draw);draw();
+}catch(err){status.textContent='Preisdaten derzeit nicht abrufbar. Bitte später versuchen.';console.error(err)}
+})();
+</script></body></html>
