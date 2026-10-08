@@ -66,17 +66,24 @@ def normalize(doc, today=TODAY):
                 "branch":"Regionale Verfügbarkeit vor Einkauf prüfen",
                 "reference_price":str(amount.get("comparisonDisplay") or "")[:80],
             })
-    unique = {}\n    for p in out:\n        existing = unique.get(p["id"])\n        if existing is None or (p["old_price"] is not None and existing["old_price"] is None):\n            unique[p["id"]] = p\n    return list(unique.values())
+    unique = {}
+    for p in out:
+        existing = unique.get(p["id"])
+        if existing is None or (p["old_price"] is not None and existing["old_price"] is None):
+            unique[p["id"]] = p
+    return list(unique.values())
 
 def main(path):
     data=json.loads(Path(path).read_text(encoding="utf-8"))
     offers=normalize(data)
     if not offers:
         raise RuntimeError("Keine derzeit gültigen ALDI-Angebotsprodukte gefunden – keine Live-Daten überschreiben")
-    OUT.write_text(json.dumps(offers,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    OUT.write_text(json.dumps(offers,ensure_ascii=False,indent=2)+"
+",encoding="utf-8")
     STATUS.write_text(json.dumps({"last_success_utc":dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "offer_count":len(offers),"source":"ALDI SÜD / inoffizielle öffentliche API; Filialpreise prüfen",
-        "disclaimer":"Kein offizieller ALDI-Datenpartner. Gültigkeit beim Händler prüfen."},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        "disclaimer":"Kein offizieller ALDI-Datenpartner. Gültigkeit beim Händler prüfen."},ensure_ascii=False,indent=2)+"
+",encoding="utf-8")
     print("Importierte aktuelle ALDI-Angebotsprodukte:",len(offers))
 
 if __name__=="__main__":
