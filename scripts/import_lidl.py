@@ -46,9 +46,7 @@ def normalize(records, today=TODAY):
             if not start<=today<=end: continue
             name=" ".join(str(v).strip() for v in (item.get("brand"),item.get("title")) if v).strip()
             price=money(item.get("price") or "")
-            old=money(item.get("old_price") or "")
             if not name or price is None: continue
-            if old is not None and old<=price:old=None
             raw_id=str(item.get("id") or "")
             if not re.fullmatch(r"[A-Za-z0-9_-]{2,100}",raw_id):continue
             ident=f"lidl-{store_key}-{raw_id}-{start.isoformat()}"
@@ -56,7 +54,7 @@ def normalize(records, today=TODAY):
                 "id":ident, "name":name[:180], "market":"Lidl", "city":"Aalen",
                 "category":str(item.get("category") or "Lidl Wochenangebot")[:80],
                 "quantity":str(item.get("packaging") or "")[:100],
-                "price":price,"old_price":old,
+                "price":price,"old_price":None,
                 "valid_from":start.isoformat(),"valid_until":end.isoformat(),
                 "source_url":"https://www.lidl.de/c/online-prospekte/s10005610/",
                 "branch":f"Lidl {postcode} Aalen ({store_key}); Lidl-Plus-Bedingungen prüfen",
