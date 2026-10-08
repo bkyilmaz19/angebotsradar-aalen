@@ -48,7 +48,7 @@ def normalize(doc, today=TODAY):
             if not isinstance(amount,dict): continue
             price=cents_price(amount)
             was=old_price(amount)
-            # Only offers with explicit former price, not normal shelf prices
+            # Angebotsartikel können auch ohne durchgestrichenen Altpreis vorkommen.
             if price is None: continue
             if was is not None and was <= price: was = None
             name = " ".join(filter(None,[str(p.get("brandName") or "").strip(),str(p.get("name") or "").strip()]))
@@ -66,7 +66,7 @@ def normalize(doc, today=TODAY):
                 "branch":"Regionale Verfügbarkeit vor Einkauf prüfen",
                 "reference_price":str(amount.get("comparisonDisplay") or "")[:80],
             })
-    return list({p["id"]:p for p in out}.values())
+    unique = {}\n    for p in out:\n        existing = unique.get(p["id"])\n        if existing is None or (p["old_price"] is not None and existing["old_price"] is None):\n            unique[p["id"]] = p\n    return list(unique.values())
 
 def main(path):
     data=json.loads(Path(path).read_text(encoding="utf-8"))
