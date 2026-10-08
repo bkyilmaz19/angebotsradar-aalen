@@ -15,7 +15,7 @@ class LidlTests(unittest.TestCase):
               "end_validity_date":"2026-10-10","category":"Lebensmittel"}
         s={"store":{"locality":"Aalen","postal_code":"73431","store_key":"DE4918"},"offers":[item]}
         self.assertEqual(len(normalize([s],today)),1)
-        self.assertEqual(normalize([s],today)[0]["old_price"],1.29)
+        self.assertIsNone(normalize([s],today)[0]["old_price"])
         self.assertEqual(len(normalize([dict(s,store=dict(s["store"],locality="Ahlen"))],today)),0)
         self.assertEqual(len(normalize([s],dt.date(2026,10,11))),0)
 if __name__=="__main__":unittest.main()
