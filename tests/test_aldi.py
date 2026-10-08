@@ -1,8 +1,15 @@
 import datetime as dt
 import unittest
-from scripts.import_aldi import normalize
+from scripts.import_aldi import normalize, category_for
 
 class AldiImportTests(unittest.TestCase):
+    def test_categories(self):
+        self.assertEqual(category_for("Deutsche Markenbutter"), "Milchprodukte & Eier")
+        self.assertEqual(category_for("CRANE Trekking Boots"), "Kleidung & Schuhe")
+        self.assertEqual(category_for("Unbekannter Artikel"), "Weitere Angebote")
+        self.assertEqual(category_for("Bio Artikel", [{"name": "Obst & Gemüse"}]), "Obst & Gemüse")
+
+
     def test_only_explicit_active_discounts(self):
         today=dt.date(2026,10,8)
         def p(was):

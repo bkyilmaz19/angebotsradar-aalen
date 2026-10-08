@@ -30,6 +30,24 @@ def old_price(raw):
     m = re.search(r"(\d+[,.]\d{2})", val)
     return float(m.group(1).replace(",", ".")) if m else None
 
+def category_for(name, categories=None):
+    """Grobe Sortierung für Filter. Bei Unsicherheit keine Lebensmittel behaupten."""
+    text = " ".join([str(name)] + [str(c.get("name", "")) for c in (categories or []) if isinstance(c, dict)]).casefold()
+    groups = (
+        ("Milchprodukte & Eier", ("milch", "joghurt", "butter", "quark", "käse", "mozzarella", "frischkäse", "skyr", "eier")),
+        ("Obst & Gemüse", ("obst", "gemüse", "banane", "äpfel", "apfel", "tomate", "gurke", "salat", "kartoffel", "trauben")),
+        ("Brot & Backwaren", ("brot", "brötchen", "baguette", "toast", "croissant", "backwaren")),
+        ("Fleisch & Fisch", ("fleisch", "hähnchen", "wurst", "schinken", "lachs", "fisch", "steak")),
+        ("Getränke", ("kaffee", "espresso", "tee", "saft", "getränk", "mineralwasser", "limonade")),
+        ("Lebensmittel & Vorrat", ("nudel", "pasta", "reis", "müsli", "mehl", "zucker", "schokolade", "keks", "pizza", "öl", "konserve")),
+        ("Kleidung & Schuhe", ("schuhe", "boots", "stiefel", "socken", "jacke", "hose", "shirt", "pullover", "bekleidung", "haarreif")),
+        ("Haushalt & Freizeit", ("haushalt", "küche", "werkzeug", "spielzeug", "garten", "lampe", "deko", "halloween")),
+    )
+    for group, terms in groups:
+        if any(word in text for word in terms):
+            return group
+    return "Weitere Angebote"
+
 def normalize(doc, today=TODAY):
     if not isinstance(doc,list):
         raise ValueError("Gruppenliste fehlt")
@@ -58,7 +76,7 @@ def normalize(doc, today=TODAY):
             out.append({
                 "id":f"aldi-{sku}-{start.isoformat()}",
                 "name":name[:180], "market":"ALDI SÜD", "city":"Aalen",
-                "category": "ALDI Wochenangebot",
+                "category": category_for(name, p.get("categories")),
                 "quantity":str(p.get("sellingSize") or "")[:100],
                 "price":price, "old_price":was, "valid_from":start.isoformat(),
                 "valid_until":end.isoformat(),
