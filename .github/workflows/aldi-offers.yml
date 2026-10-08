@@ -1,0 +1,43 @@
+name: ALDI-Angebote aktualisieren (inoffizielle Quelle)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/aldi-offers.yml'
+      - 'scripts/import_aldi.py'
+  schedule:
+    - cron: '25 7,18 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: aldi-live-angebote
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: ALDI-Client laden
+        run: go install github.com/ByteSizedMarius/aldiscount/cmd/aldiscount@v0.1.0
+      - name: Angekündigte Wochenangebote abrufen
+        run: |
+          "$HOME/go/bin/aldiscount" offers -no-themes -json > /tmp/aldi-offers.json
+      - name: Sachliche Angebotsdaten prüfen und aufbereiten
+        run: python scripts/import_aldi.py /tmp/aldi-offers.json
+      - name: Angebotsdateien veröffentlichen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/offers.json data/status.json
+          if ! git diff --cached --quiet; then
+            git commit -m "ALDI Angebotsdaten aktualisieren"
+            git push
+          fi
