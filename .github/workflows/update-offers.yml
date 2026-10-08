@@ -6,20 +6,30 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: angebotsradar-datenimport
+  cancel-in-progress: false
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      FEED_URL: ${{ secrets.FEED_URL }}
+      FEED_API_KEY: ${{ secrets.FEED_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Angebotsdaten abrufen und prüfen
-        env:
-          FEED_URL: ${{ secrets.FEED_URL }}
-          FEED_API_KEY: ${{ secrets.FEED_API_KEY }}
+      - name: Importer testen
+        run: python -m unittest discover -s tests -v
+      - name: Keine freigegebene Angebotsquelle vorhanden
+        if: ${{ env.FEED_URL == '' }}
+        run: echo "Noch keine FEED_URL eingerichtet. Keine Angebote erfunden oder überschrieben."
+      - name: Echte Angebote abrufen und prüfen
+        if: ${{ env.FEED_URL != '' }}
         run: python scripts/update_offers.py
-      - name: Aktualisierte Daten veröffentlichen
+      - name: Geprüfte Angebotsdaten veröffentlichen
+        if: ${{ env.FEED_URL != '' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
