@@ -1,0 +1,24 @@
+name: Lidl und EDEKA APIs technisch untersuchen
+on:
+  push:
+    branches: [research/lidl-edeka-live-test]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lidl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unveränderten Lidl-Client herunterladen
+        run: git clone --depth 1 https://github.com/EvickaStudio/lidl-discounts.git /tmp/lidl-discounts
+      - name: Client-Abhängigkeiten installieren
+        run: python -m pip install httpx pydantic pydantic-settings python-dotenv
+      - name: Nur eine Filiale in Aalen lesen, Struktur testen
+        run: python scripts/test_lidl_research.py
+      - name: Keine Daten veröffentlichen
+        run: echo "Research only; no prices or product images are republished."
