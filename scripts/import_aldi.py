@@ -49,7 +49,8 @@ def normalize(doc, today=TODAY):
             price=cents_price(amount)
             was=old_price(amount)
             # Only offers with explicit former price, not normal shelf prices
-            if price is None or was is None or was <= price: continue
+            if price is None: continue
+            if was is not None and was <= price: was = None
             name = " ".join(filter(None,[str(p.get("brandName") or "").strip(),str(p.get("name") or "").strip()]))
             sku = str(p.get("sku") or "")
             slug = str(p.get("urlSlugText") or "")
@@ -71,12 +72,12 @@ def main(path):
     data=json.loads(Path(path).read_text(encoding="utf-8"))
     offers=normalize(data)
     if not offers:
-        raise RuntimeError("Keine derzeit gültigen, ausdrücklich reduzierten Preise – keine Live-Daten überschreiben")
+        raise RuntimeError("Keine derzeit gültigen ALDI-Angebotsprodukte gefunden – keine Live-Daten überschreiben")
     OUT.write_text(json.dumps(offers,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     STATUS.write_text(json.dumps({"last_success_utc":dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "offer_count":len(offers),"source":"ALDI SÜD / inoffizielle öffentliche API; Filialpreise prüfen",
         "disclaimer":"Kein offizieller ALDI-Datenpartner. Gültigkeit beim Händler prüfen."},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print("Importierte ausdrücklich reduzierte ALDI-Angebote:",len(offers))
+    print("Importierte aktuelle ALDI-Angebotsprodukte:",len(offers))
 
 if __name__=="__main__":
     if len(sys.argv)!=2: raise SystemExit("Usage: import_aldi.py /tmp/offers.json")
