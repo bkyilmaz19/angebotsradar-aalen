@@ -11,7 +11,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: aldi-live-angebote
+  group: angebotsradar-schreibzugriff
   cancel-in-progress: false
 jobs:
   import:
