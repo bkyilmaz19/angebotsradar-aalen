@@ -80,6 +80,15 @@ def main():
             raise ValueError('No acceptable regional, currently valid offers found; refusing replacement')
         unique = {o['id']: o for o in offers}
         result = sorted(unique.values(), key=lambda x: (x['market'], x['name'], x['city']))
+        # Vorhandene ALDI-Angebote erhalten und Feed-Händler gezielt ersetzen.
+        existing = json.loads(TARGET.read_text(encoding='utf-8')) if TARGET.exists() else []
+        if not isinstance(existing, list):
+            existing = []
+        source_markets = {o['market'] for o in result}
+        untouched = [o for o in existing if isinstance(o, dict)
+                     and o.get('market') not in source_markets
+                     and str(o.get('valid_from', '')) <= today.isoformat() <= str(o.get('valid_until', ''))]
+        result = sorted(untouched + result, key=lambda x: (x['market'], x['name'], x['city']))
         TARGET.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
         STATUS.write_text(json.dumps({'last_success_utc': now.isoformat(timespec='seconds'), 'offer_count':len(result),'source':'Autorisierter Angebotsfeed'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         print(f'Import successful: {len(result)} valid offers ({len(incoming)} input)')
