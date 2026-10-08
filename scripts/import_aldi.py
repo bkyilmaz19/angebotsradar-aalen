@@ -78,12 +78,10 @@ def main(path):
     offers=normalize(data)
     if not offers:
         raise RuntimeError("Keine derzeit gültigen ALDI-Angebotsprodukte gefunden – keine Live-Daten überschreiben")
-    OUT.write_text(json.dumps(offers,ensure_ascii=False,indent=2)+"
-",encoding="utf-8")
+    OUT.write_text(json.dumps(offers,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     STATUS.write_text(json.dumps({"last_success_utc":dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "offer_count":len(offers),"source":"ALDI SÜD / inoffizielle öffentliche API; Filialpreise prüfen",
-        "disclaimer":"Kein offizieller ALDI-Datenpartner. Gültigkeit beim Händler prüfen."},ensure_ascii=False,indent=2)+"
-",encoding="utf-8")
+        "disclaimer":"Kein offizieller ALDI-Datenpartner. Gültigkeit beim Händler prüfen."},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("Importierte aktuelle ALDI-Angebotsprodukte:",len(offers))
 
 if __name__=="__main__":
