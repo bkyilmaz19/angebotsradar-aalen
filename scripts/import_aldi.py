@@ -78,6 +78,14 @@ def main(path):
     offers=normalize(data)
     if not offers:
         raise RuntimeError("Keine derzeit gültigen ALDI-Angebotsprodukte gefunden – keine Live-Daten überschreiben")
+    # Beim ALDI-Update bleiben geprüfte Angebote anderer Händler erhalten.
+    existing = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else []
+    if not isinstance(existing, list):
+        existing = []
+    others = [o for o in existing if isinstance(o,dict)
+              and o.get("market") != "ALDI SÜD"
+              and str(o.get("valid_from","")) <= TODAY.isoformat() <= str(o.get("valid_until",""))]
+    offers = others + offers
     OUT.write_text(json.dumps(offers,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     STATUS.write_text(json.dumps({"last_success_utc":dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "offer_count":len(offers),"source":"ALDI SÜD / inoffizielle öffentliche API; Filialpreise prüfen",

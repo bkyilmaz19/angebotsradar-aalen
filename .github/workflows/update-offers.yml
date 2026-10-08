@@ -7,7 +7,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: angebotsradar-datenimport
+  group: angebotsradar-schreibzugriff
   cancel-in-progress: false
 jobs:
   update:
