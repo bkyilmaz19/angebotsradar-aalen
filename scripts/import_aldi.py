@@ -33,15 +33,17 @@ def old_price(raw):
 def category_for(name, categories=None):
     """Grobe Sortierung für Filter. Bei Unsicherheit keine Lebensmittel behaupten."""
     text = " ".join([str(name)] + [str(c.get("name", "")) for c in (categories or []) if isinstance(c, dict)]).casefold()
+    # Explizite Nonfood-Signale haben Vorrang: z. B. Schokolade als
+    # Hosenfarbe oder Kaffee im Namen eines Holz-Spielsets.
     groups = (
+        ("Kleidung & Schuhe", ("schuhe", "boots", "stiefel", "socken", "jacke", "hose", "shirt", "pullover", "bekleidung", "haarreif")),
+        ("Haushalt & Freizeit", ("haushalt", "küche", "werkzeug", "spielzeug", "spielset", "spielküche", "puppen", "plüschtier", "baustein", "toylino", "holz-gebäck", "garten", "lampe", "deko", "halloween")),
         ("Milchprodukte & Eier", ("milch", "joghurt", "butter", "quark", "käse", "mozzarella", "frischkäse", "skyr", "eier")),
         ("Obst & Gemüse", ("obst", "gemüse", "banane", "äpfel", "apfel", "tomate", "gurke", "salat", "kartoffel", "trauben")),
         ("Brot & Backwaren", ("brot", "brötchen", "baguette", "toast", "croissant", "backwaren")),
         ("Fleisch & Fisch", ("fleisch", "hähnchen", "wurst", "schinken", "lachs", "fisch", "steak")),
         ("Getränke", ("kaffee", "espresso", "tee", "saft", "getränk", "mineralwasser", "limonade")),
         ("Lebensmittel & Vorrat", ("nudel", "pasta", "reis", "müsli", "mehl", "zucker", "schokolade", "keks", "pizza", "öl", "konserve")),
-        ("Kleidung & Schuhe", ("schuhe", "boots", "stiefel", "socken", "jacke", "hose", "shirt", "pullover", "bekleidung", "haarreif")),
-        ("Haushalt & Freizeit", ("haushalt", "küche", "werkzeug", "spielzeug", "garten", "lampe", "deko", "halloween")),
     )
     for group, terms in groups:
         if any(word in text for word in terms):
