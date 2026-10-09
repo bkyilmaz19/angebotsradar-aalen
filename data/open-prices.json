@@ -1,7 +1,8 @@
 {
   "source": "Open Prices / Open Food Facts",
   "license": "ODbL 1.0",
-  "checked_utc": null,
-  "note": "Noch kein automatischer Datenabruf erfolgt.",
+  "license_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+  "checked_utc": "2026-10-09T08:52:48+00:00",
+  "note": "Preisbeobachtungen der letzten 30 Tage; keine bestätigten aktuellen Wochenangebote.",
   "items": []
 }
