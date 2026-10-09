@@ -31,19 +31,40 @@ def old_price(raw):
     return float(m.group(1).replace(",", ".")) if m else None
 
 def category_for(name, categories=None):
-    """Grobe Sortierung für Filter. Bei Unsicherheit keine Lebensmittel behaupten."""
-    text = " ".join([str(name)] + [str(c.get("name", "")) for c in (categories or []) if isinstance(c, dict)]).casefold()
-    groups = (
+    """Sortiere Nonfood vor Lebensmitteln: Produktnamen können Geschmacksnamen enthalten.
+
+    Beispiel: Eine Lounge-Hose in der Farbe 'Schokolade' ist keine Süßigkeit;
+    ein Holz-Gebäck-Set mit 'Kaffee' ist kein Getränk.
+    """
+    text = " ".join(
+        [str(name)] +
+        [str(c.get("name", "")) for c in (categories or []) if isinstance(c, dict)]
+    ).casefold()
+    # Spezifische Nonfood-Begriffe haben Vorrang vor Lebensmitteln und Getränken.
+    # Unbekannte Artikel bleiben bewusst in "Weitere Angebote".
+    nonfood = (
+        ("Haushalt & Freizeit", (
+            "spielzeug", "holz-gebäck", "holzgebäck", "holzspielzeug",
+            "spielküche", "kaufmannsladen", "puppen", "spielset", "bauklötz",
+            "toylino", "plüsch", "haushalt", "küche", "werkzeug", "garten",
+            "lampe", "deko", "halloween", "teelicht", "kerze", "pfanne",
+            "backform", "handtuch", "bettwäsche",
+        )),
+        ("Kleidung & Schuhe", (
+            "schuhe", "boots", "stiefel", "socken", "jacke", "hose",
+            "shirt", "pullover", "bekleidung", "kleidung", "haarreif",
+            "leggings", "pyjama", "jeans", "bademantel",
+        )),
+    )
+    food = (
         ("Milchprodukte & Eier", ("milch", "joghurt", "butter", "quark", "käse", "mozzarella", "frischkäse", "skyr", "eier")),
         ("Obst & Gemüse", ("obst", "gemüse", "banane", "äpfel", "apfel", "tomate", "gurke", "salat", "kartoffel", "trauben")),
         ("Brot & Backwaren", ("brot", "brötchen", "baguette", "toast", "croissant", "backwaren")),
         ("Fleisch & Fisch", ("fleisch", "hähnchen", "wurst", "schinken", "lachs", "fisch", "steak")),
         ("Getränke", ("kaffee", "espresso", "tee", "saft", "getränk", "mineralwasser", "limonade")),
         ("Lebensmittel & Vorrat", ("nudel", "pasta", "reis", "müsli", "mehl", "zucker", "schokolade", "keks", "pizza", "öl", "konserve")),
-        ("Kleidung & Schuhe", ("schuhe", "boots", "stiefel", "socken", "jacke", "hose", "shirt", "pullover", "bekleidung", "haarreif")),
-        ("Haushalt & Freizeit", ("haushalt", "küche", "werkzeug", "spielzeug", "garten", "lampe", "deko", "halloween")),
     )
-    for group, terms in groups:
+    for group, terms in nonfood + food:
         if any(word in text for word in terms):
             return group
     return "Weitere Angebote"
