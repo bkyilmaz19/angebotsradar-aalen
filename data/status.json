@@ -1,6 +1,6 @@
 {
-  "last_success_utc": "2026-10-10T18:43:33+00:00",
+  "last_success_utc": "2026-10-10T19:51:12+00:00",
   "offer_count": 297,
-  "source": "ALDI SÜD / inoffizielle öffentliche API; Filialpreise prüfen",
-  "disclaimer": "Kein offizieller ALDI-Datenpartner. Gültigkeit beim Händler prüfen."
+  "source": "ALDI SÜD und Lidl (inoffizielle öffentliche Endpunkte)",
+  "disclaimer": "Kein offizieller Datenpartner; Preise, Filialen und Lidl-Plus-Bedingungen beim Händler prüfen."
 }
