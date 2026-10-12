@@ -1,0 +1,50 @@
+name: ALDI Schnittstelle prüfen (nur Forschung)
+on:
+  push:
+    branches: [research/aldi-sued-api-test]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Öffentliche Projektbibliothek laden
+        run: go install github.com/ByteSizedMarius/aldiscount/cmd/aldiscount@latest
+      - name: Einmalige ALDI-Filialsuche um Aalen
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$HOME/go/bin/aldiscount" stores -lat 48.837 -lon 10.093 -radius 20 -json > /tmp/aldi-stores.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('/tmp/aldi-stores.json').read_text())
+          print('Antwort ist gültiges JSON:', isinstance(data,(list,dict)))
+          if isinstance(data,list): print('Gefundene Filialdatensätze:',len(data))
+          elif isinstance(data,dict): print('Vorhandene Felder:',', '.join(data.keys()))
+          PY
+      - name: Aktuelle ALDI-Angebote nur strukturell prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$HOME/go/bin/aldiscount" offers -no-themes -json > /tmp/aldi-offers.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('/tmp/aldi-offers.json').read_text())
+          print('Aktuelle Angebotsantwort ist gültiges JSON:', isinstance(data,(list,dict)))
+          if isinstance(data,list):
+              print('Angebotstage/-gruppen:',len(data))
+              if data and isinstance(data[0],dict):
+                  print('Felder der ersten Gruppe:', ', '.join(data[0].keys()))
+          elif isinstance(data,dict):
+              print('Felder der Antwort:', ', '.join(data.keys()))
+          PY
+      - name: Keine Veröffentlichungen oder Speicherung
+        run: echo "Nur technische Recherche. Keine Händlerangebote werden gespeichert oder veröffentlicht."
